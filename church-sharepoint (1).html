@@ -1,0 +1,650 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Oasis Windermere — Ministry Hub</title>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #f5f5f0;
+      --white: #ffffff;
+      --black: #0a0a0a;
+      --text: #1a1a1a;
+      --muted: #888;
+      --border: #e8e8e4;
+      --kids:      #ff6b35;
+      --usher:     #3b7eff;
+      --security:  #2d2d2d;
+      --disc:      #7c4dff;
+      --media:     #00c896;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Outfit', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    .page { display: none; }
+    .page.active { display: block; animation: up .35s cubic-bezier(.22,.68,0,1.2); }
+    @keyframes up { from { opacity:0; transform:translateY(14px); } to { opacity:1; transform:translateY(0); } }
+
+    /* TOPBAR */
+    .topbar {
+      background: var(--white);
+      border-bottom: 1px solid var(--border);
+      height: 56px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 2rem;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .logo { display: flex; align-items: center; gap: .6rem; cursor: pointer; }
+    .logo-mark {
+      width: 28px; height: 28px;
+      background: var(--black);
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .logo-mark svg { width: 14px; height: 14px; fill: none; stroke: #fff; stroke-width: 2.5; stroke-linecap: round; }
+    .logo-text { font-size: .9rem; font-weight: 700; letter-spacing: -.02em; color: var(--black); line-height: 1.1; }
+    .logo-text span { display: block; font-size: .65rem; font-weight: 400; color: var(--muted); letter-spacing: .02em; }
+
+    .topnav { display: flex; gap: .1rem; }
+    .topnav button {
+      background: transparent; border: none;
+      font-family: 'Outfit', sans-serif; font-size: .8rem; font-weight: 500;
+      color: var(--muted); cursor: pointer; padding: .35rem .75rem;
+      border-radius: 6px; transition: all .15s;
+    }
+    .topnav button:hover { color: var(--text); background: var(--bg); }
+    .topnav button.active { color: var(--text); background: var(--bg); font-weight: 600; }
+
+    /* HOME */
+    .home-hero { padding: 5rem 2rem 3.5rem; max-width: 900px; margin: 0 auto; }
+    .home-hero .eyebrow {
+      font-size: .72rem; font-weight: 600; letter-spacing: .12em;
+      text-transform: uppercase; color: var(--muted); margin-bottom: 1.25rem;
+    }
+    .home-hero h1 {
+      font-size: clamp(2.8rem, 6vw, 5rem); font-weight: 800;
+      letter-spacing: -.04em; line-height: 1.05; color: var(--black); margin-bottom: 1.25rem;
+    }
+    .home-hero h1 .dim { color: var(--muted); }
+    .home-hero p { font-size: 1.05rem; color: var(--muted); line-height: 1.7; max-width: 480px; }
+
+    .section { max-width: 1100px; margin: 0 auto; padding: 0 2rem 4rem; }
+    .label-row { display: flex; align-items: center; gap: .75rem; margin-bottom: 1.25rem; }
+    .label-row .lbl { font-size: .72rem; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+    .label-row .line { flex: 1; height: 1px; background: var(--border); }
+
+    .ministry-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: .75rem;
+    }
+    @media (max-width: 900px) { .ministry-grid { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 500px)  { .ministry-grid { grid-template-columns: 1fr; } }
+
+    .m-card {
+      background: var(--white); border: 1px solid var(--border); border-radius: 14px;
+      padding: 1.5rem 1.25rem; cursor: pointer;
+      transition: transform .2s, box-shadow .2s;
+      display: flex; flex-direction: column; gap: .75rem;
+      position: relative; overflow: hidden;
+    }
+    .m-card::before {
+      content: ''; position: absolute; top: 0; left: 0; right: 0;
+      height: 3px; border-radius: 14px 14px 0 0;
+    }
+    .m-card:hover { transform: translateY(-3px); box-shadow: 0 12px 32px rgba(0,0,0,.07); }
+    .m-card .chip { width: 32px; height: 32px; border-radius: 8px; display: inline-block; }
+    .m-card h3 { font-size: .95rem; font-weight: 700; letter-spacing: -.02em; }
+    .m-card p  { font-size: .8rem; color: var(--muted); line-height: 1.5; flex: 1; }
+    .m-card .arrow {
+      font-size: .75rem; font-weight: 600; color: var(--muted);
+      display: flex; align-items: center; gap: .3rem;
+    }
+    .m-card .arrow svg { width: 12px; height: 12px; stroke: currentColor; fill: none; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
+
+    .kids-card::before     { background: var(--kids); }
+    .usher-card::before    { background: var(--usher); }
+    .security-card::before { background: var(--security); }
+    .disc-card::before     { background: var(--disc); }
+    .media-card::before    { background: var(--media); }
+
+    .kids-card .chip     { background: #fff0ea; }
+    .usher-card .chip    { background: #eaf0ff; }
+    .security-card .chip { background: #f0f0f0; }
+    .disc-card .chip     { background: #f2eeff; }
+    .media-card .chip    { background: #e5faf5; }
+
+    .bottom-row { display: grid; grid-template-columns: 1fr 1fr; gap: .75rem; margin-top: .75rem; }
+    @media (max-width: 650px) { .bottom-row { grid-template-columns: 1fr; } }
+
+    .panel { background: var(--white); border: 1px solid var(--border); border-radius: 14px; padding: 1.5rem; }
+    .panel-title { font-size: .72rem; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); margin-bottom: 1.1rem; }
+
+    .announce { border-bottom: 1px solid var(--border); padding: .9rem 0; }
+    .announce:first-of-type { padding-top: 0; }
+    .announce:last-of-type  { border-bottom: none; padding-bottom: 0; }
+    .announce .date { font-size: .68rem; font-weight: 600; color: var(--muted); letter-spacing: .06em; text-transform: uppercase; margin-bottom: .2rem; }
+    .announce h4 { font-size: .9rem; font-weight: 600; color: var(--black); margin-bottom: .2rem; }
+    .announce p  { font-size: .82rem; color: var(--muted); line-height: 1.5; }
+
+    .ql { display: flex; align-items: center; gap: .7rem; padding: .55rem .6rem; border-radius: 8px; cursor: pointer; transition: background .15s; text-decoration: none; color: inherit; }
+    .ql:hover { background: var(--bg); }
+    .ql-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--border); flex-shrink: 0; }
+    .ql span { font-size: .88rem; font-weight: 500; color: var(--text); }
+
+    /* SUB PAGES */
+    .sub-hero { padding: 3.5rem 2rem 2.5rem; }
+    .sub-hero-inner { max-width: 1100px; margin: 0 auto; }
+    .breadcrumb { display: flex; align-items: center; gap: .4rem; font-size: .75rem; color: var(--muted); margin-bottom: 1.25rem; }
+    .breadcrumb .crumb { cursor: pointer; transition: color .15s; }
+    .breadcrumb .crumb:hover { color: var(--text); }
+    .breadcrumb .sep { color: var(--border); }
+    .dept-chip { display: inline-block; padding: .3rem .9rem; border-radius: 20px; font-size: .72rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--white); margin-bottom: 1rem; }
+    .sub-hero h1 { font-size: clamp(2rem, 5vw, 3.5rem); font-weight: 800; letter-spacing: -.04em; color: var(--black); line-height: 1.05; margin-bottom: .75rem; }
+    .sub-hero p  { font-size: 1rem; color: var(--muted); max-width: 520px; line-height: 1.65; }
+
+    .stats-strip { max-width: 1100px; margin: 0 auto; padding: 0 2rem; display: flex; gap: .75rem; flex-wrap: wrap; margin-bottom: 2rem; }
+    .stat { background: var(--white); border: 1px solid var(--border); border-radius: 10px; padding: .9rem 1.25rem; min-width: 130px; }
+    .stat .s-label { font-size: .68rem; font-weight: 600; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); margin-bottom: .2rem; }
+    .stat .s-value { font-size: 1.3rem; font-weight: 800; letter-spacing: -.03em; color: var(--black); }
+    .stat .s-sub   { font-size: .75rem; color: var(--muted); margin-top: .1rem; }
+
+    .sub-body { max-width: 1100px; margin: 0 auto; padding: 0 2rem 4rem; display: grid; grid-template-columns: 2fr 1fr; gap: .75rem; align-items: start; }
+    @media (max-width: 780px) { .sub-body { grid-template-columns: 1fr; } }
+
+    .block { background: var(--white); border: 1px solid var(--border); border-radius: 14px; padding: 1.5rem; margin-bottom: .75rem; }
+    .block-title { font-size: .72rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); margin-bottom: 1rem; padding-bottom: .75rem; border-bottom: 1px solid var(--border); }
+
+    .row-item { display: flex; align-items: flex-start; gap: .75rem; padding: .6rem 0; border-bottom: 1px solid var(--border); font-size: .875rem; color: var(--text); line-height: 1.55; }
+    .row-item:last-child { border-bottom: none; padding-bottom: 0; }
+    .row-item .dot { width: 5px; height: 5px; border-radius: 50%; background: var(--muted); flex-shrink: 0; margin-top: 8px; }
+
+    .person { display: flex; align-items: center; gap: .75rem; padding: .6rem 0; border-bottom: 1px solid var(--border); }
+    .person:last-child { border-bottom: none; }
+    .avatar { width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: .72rem; font-weight: 700; color: var(--white); flex-shrink: 0; }
+    .person .p-name { font-size: .88rem; font-weight: 600; color: var(--black); }
+    .person .p-role { font-size: .75rem; color: var(--muted); }
+
+    .doc-row { display: flex; align-items: center; gap: .75rem; padding: .6rem .5rem; border-radius: 8px; cursor: pointer; transition: background .15s; }
+    .doc-row:hover { background: var(--bg); }
+    .doc-icon { width: 32px; height: 32px; border-radius: 8px; background: var(--bg); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .doc-icon svg { width: 14px; height: 14px; stroke: var(--muted); fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+    .doc-name { font-size: .875rem; font-weight: 500; color: var(--text); }
+    .doc-meta { font-size: .72rem; color: var(--muted); }
+
+    footer { text-align: center; padding: 2rem; font-size: .78rem; color: var(--muted); border-top: 1px solid var(--border); }
+
+    /* MOBILE NAV */
+    .mob-nav { display: none; position: fixed; bottom: 0; left: 0; right: 0; background: var(--white); border-top: 1px solid var(--border); padding: .5rem .5rem .75rem; z-index: 200; justify-content: space-around; }
+    .mob-nav button { background: transparent; border: none; font-family: 'Outfit', sans-serif; font-size: .58rem; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; color: var(--muted); cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: .2rem; padding: .3rem .4rem; border-radius: 8px; transition: color .15s; }
+    .mob-nav button .mbdot { width: 5px; height: 5px; border-radius: 50%; background: transparent; transition: background .15s; }
+    .mob-nav button.active { color: var(--text); }
+    .mob-nav button.active .mbdot { background: var(--text); }
+    @media (max-width: 640px) { .mob-nav { display: flex; } body { padding-bottom: 65px; } .topnav { display: none; } }
+  </style>
+</head>
+<body>
+
+<nav class="topbar">
+  <div class="logo" onclick="showPage('home')">
+    <div class="logo-mark">
+      <svg viewBox="0 0 14 14"><line x1="7" y1="1" x2="7" y2="13"/><line x1="1" y1="5" x2="13" y2="5"/></svg>
+    </div>
+    <div class="logo-text">Oasis Windermere<span>Ministry Hub</span></div>
+  </div>
+  <div class="topnav">
+    <button class="active" onclick="showPage('home')">Home</button>
+    <button onclick="showPage('okids')">O'Kids</button>
+    <button onclick="showPage('usher')">Usher</button>
+    <button onclick="showPage('security')">Security</button>
+    <button onclick="showPage('discipleship')">Discipleship</button>
+    <button onclick="showPage('media')">Media</button>
+  </div>
+</nav>
+
+
+<!-- HOME -->
+<div id="home" class="page active">
+  <div class="home-hero">
+    <p class="eyebrow">Internal Team Resources</p>
+    <h1>Ministry Hub<br><span class="dim">Oasis Windermere</span></h1>
+    <p>Resources, schedules, and team info for every ministry department. Select a team below to get started.</p>
+  </div>
+  <div class="section">
+    <div class="label-row"><span class="lbl">Departments</span><div class="line"></div></div>
+    <div class="ministry-grid">
+      <div class="m-card kids-card" onclick="showPage('okids')">
+        <div class="chip"></div>
+        <h3>O'Kids</h3>
+        <p>Children's ministry for ages 0–12. Curriculum, class schedules, and volunteer info.</p>
+        <div class="arrow">Open <svg viewBox="0 0 12 12"><line x1="3" y1="6" x2="9" y2="6"/><polyline points="6 3 9 6 6 9"/></svg></div>
+      </div>
+      <div class="m-card usher-card" onclick="showPage('usher')">
+        <div class="chip"></div>
+        <h3>Usher</h3>
+        <p>Welcome ministry, seating, offering procedures, and hospitality coordination.</p>
+        <div class="arrow">Open <svg viewBox="0 0 12 12"><line x1="3" y1="6" x2="9" y2="6"/><polyline points="6 3 9 6 6 9"/></svg></div>
+      </div>
+      <div class="m-card security-card" onclick="showPage('security')">
+        <div class="chip"></div>
+        <h3>Security</h3>
+        <p>Safety protocols, emergency procedures, post assignments, and incident reporting.</p>
+        <div class="arrow">Open <svg viewBox="0 0 12 12"><line x1="3" y1="6" x2="9" y2="6"/><polyline points="6 3 9 6 6 9"/></svg></div>
+      </div>
+      <div class="m-card disc-card" onclick="showPage('discipleship')">
+        <div class="chip"></div>
+        <h3>Discipleship</h3>
+        <p>Life groups, Growth Track, Bible study materials, and leader training resources.</p>
+        <div class="arrow">Open <svg viewBox="0 0 12 12"><line x1="3" y1="6" x2="9" y2="6"/><polyline points="6 3 9 6 6 9"/></svg></div>
+      </div>
+      <div class="m-card media-card" onclick="showPage('media')">
+        <div class="chip"></div>
+        <h3>Media</h3>
+        <p>AV operations, livestream, graphics, social calendar, and tech team schedules.</p>
+        <div class="arrow">Open <svg viewBox="0 0 12 12"><line x1="3" y1="6" x2="9" y2="6"/><polyline points="6 3 9 6 6 9"/></svg></div>
+      </div>
+    </div>
+
+    <div class="bottom-row">
+      <div class="panel">
+        <div class="panel-title">Announcements</div>
+        <div class="announce">
+          <div class="date">Feb 24, 2026</div>
+          <h4>All-Ministry Meeting — March 2</h4>
+          <p>All department leads are asked to attend the quarterly meeting in Room 201 at 10 AM.</p>
+        </div>
+        <div class="announce">
+          <div class="date">Feb 20, 2026</div>
+          <h4>Updated Volunteer Application</h4>
+          <p>The new volunteer application is live. Please share with anyone interested in joining a team.</p>
+        </div>
+        <div class="announce">
+          <div class="date">Feb 15, 2026</div>
+          <h4>Good Friday Service — All Teams</h4>
+          <p>All teams are needed for the April 3rd Good Friday service. Sign-up sheets are in each department page.</p>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="panel-title">Quick Links</div>
+        <a class="ql" href="#"><div class="ql-dot"></div><span>Church Calendar</span></a>
+        <a class="ql" href="#"><div class="ql-dot"></div><span>Volunteer Sign-Up</span></a>
+        <a class="ql" href="#"><div class="ql-dot"></div><span>Worship Planning</span></a>
+        <a class="ql" href="#"><div class="ql-dot"></div><span>Church Email</span></a>
+        <a class="ql" href="#"><div class="ql-dot"></div><span>Team Chat</span></a>
+        <a class="ql" href="#"><div class="ql-dot"></div><span>Shared Documents</span></a>
+        <a class="ql" href="#"><div class="ql-dot"></div><span>Sermon Archive</span></a>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- O'KIDS -->
+<div id="okids" class="page">
+  <div class="sub-hero">
+    <div class="sub-hero-inner">
+      <div class="breadcrumb"><span class="crumb" onclick="showPage('home')">Home</span><span class="sep">/</span><span>O'Kids</span></div>
+      <div class="dept-chip" style="background:var(--kids)">O'Kids Ministry</div>
+      <h1>Children's<br>Ministry</h1>
+      <p>Creating fun, safe, and faith-filled experiences for children from birth through 5th grade.</p>
+    </div>
+  </div>
+  <div class="stats-strip">
+    <div class="stat"><div class="s-label">Age Range</div><div class="s-value">0–12</div><div class="s-sub">Nursery – 5th Grade</div></div>
+    <div class="stat"><div class="s-label">Services</div><div class="s-value">Sun + Wed</div><div class="s-sub">9 AM, 11 AM, 7 PM</div></div>
+    <div class="stat"><div class="s-label">Volunteers</div><div class="s-value">24 Active</div><div class="s-sub">8 leads, 16 helpers</div></div>
+    <div class="stat"><div class="s-label">Curriculum</div><div class="s-value">Tru 2026</div><div class="s-sub">Q1: "Rooted"</div></div>
+  </div>
+  <div class="sub-body">
+    <div>
+      <div class="block">
+        <div class="block-title">Weekly Schedule</div>
+        <div class="row-item"><div class="dot"></div>Sunday 8:30 AM — Volunteer check-in and classroom setup</div>
+        <div class="row-item"><div class="dot"></div>Sunday 9:00 AM — First service (Nursery through 5th Grade)</div>
+        <div class="row-item"><div class="dot"></div>Sunday 10:30 AM — Transition between services</div>
+        <div class="row-item"><div class="dot"></div>Sunday 11:00 AM — Second service (all classes)</div>
+        <div class="row-item"><div class="dot"></div>Wednesday 6:45 PM — Mid-week Kids Church</div>
+      </div>
+      <div class="block">
+        <div class="block-title">Curriculum & Documents</div>
+        <div class="doc-row"><div class="doc-icon"><svg viewBox="0 0 14 14"><rect x="2" y="1" width="10" height="12" rx="1.5"/><line x1="4.5" y1="5" x2="9.5" y2="5"/><line x1="4.5" y1="7.5" x2="9.5" y2="7.5"/><line x1="4.5" y1="10" x2="7" y2="10"/></svg></div><div><div class="doc-name">Q1 2026 Lesson Plans</div><div class="doc-meta">Tru Curriculum · Updated Feb 1</div></div></div>
+        <div class="doc-row"><div class="doc-icon"><svg viewBox="0 0 14 14"><rect x="2" y="1" width="10" height="12" rx="1.5"/><line x1="4.5" y1="5" x2="9.5" y2="5"/><line x1="4.5" y1="7.5" x2="9.5" y2="7.5"/><line x1="4.5" y1="10" x2="7" y2="10"/></svg></div><div><div class="doc-name">Craft Supply List — March</div><div class="doc-meta">Available in supply room</div></div></div>
+        <div class="doc-row"><div class="doc-icon"><svg viewBox="0 0 14 14"><rect x="2" y="1" width="10" height="12" rx="1.5"/><line x1="4.5" y1="5" x2="9.5" y2="5"/><line x1="4.5" y1="7.5" x2="9.5" y2="7.5"/><line x1="4.5" y1="10" x2="7" y2="10"/></svg></div><div><div class="doc-name">Child Check-In Procedures</div><div class="doc-meta">Required reading for all volunteers</div></div></div>
+        <div class="doc-row"><div class="doc-icon"><svg viewBox="0 0 14 14"><rect x="2" y="1" width="10" height="12" rx="1.5"/><line x1="4.5" y1="5" x2="9.5" y2="5"/><line x1="4.5" y1="7.5" x2="9.5" y2="7.5"/><line x1="4.5" y1="10" x2="7" y2="10"/></svg></div><div><div class="doc-name">Child Safety Policy</div><div class="doc-meta">Updated January 2026</div></div></div>
+      </div>
+      <div class="block">
+        <div class="block-title">Volunteer Responsibilities</div>
+        <div class="row-item"><div class="dot"></div>Arrive 30 minutes before service for setup and prayer</div>
+        <div class="row-item"><div class="dot"></div>Complete background check before serving</div>
+        <div class="row-item"><div class="dot"></div>Follow all child safety and check-in protocols at all times</div>
+        <div class="row-item"><div class="dot"></div>Communicate absences at least 48 hours in advance</div>
+        <div class="row-item"><div class="dot"></div>Attend monthly team meeting on the 1st Sunday</div>
+      </div>
+    </div>
+    <div>
+      <div class="block">
+        <div class="block-title">Ministry Leads</div>
+        <div class="person"><div class="avatar" style="background:var(--kids)">MD</div><div><div class="p-name">Ministry Director</div><div class="p-role">Add Name Here</div></div></div>
+        <div class="person"><div class="avatar" style="background:#fb923c">NL</div><div><div class="p-name">Nursery Lead</div><div class="p-role">Add Name Here</div></div></div>
+        <div class="person"><div class="avatar" style="background:#fdba74">EL</div><div><div class="p-name">Elementary Lead</div><div class="p-role">Add Name Here</div></div></div>
+      </div>
+      <div class="block">
+        <div class="block-title">Classrooms</div>
+        <div class="row-item"><div class="dot"></div>Nursery (0–18 mo) — Room 101</div>
+        <div class="row-item"><div class="dot"></div>Toddlers (18 mo–3) — Room 102</div>
+        <div class="row-item"><div class="dot"></div>Pre-K (4–5) — Room 103</div>
+        <div class="row-item"><div class="dot"></div>K–2nd Grade — Room 104</div>
+        <div class="row-item"><div class="dot"></div>3rd–5th Grade — Room 105</div>
+      </div>
+      <div class="block">
+        <div class="block-title">Upcoming</div>
+        <div class="row-item"><div class="dot"></div>Easter Egg Hunt — Apr 19</div>
+        <div class="row-item"><div class="dot"></div>Kids Camp Registration Opens — Mar 15</div>
+        <div class="row-item"><div class="dot"></div>Volunteer Appreciation — Mar 30</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- USHER -->
+<div id="usher" class="page">
+  <div class="sub-hero">
+    <div class="sub-hero-inner">
+      <div class="breadcrumb"><span class="crumb" onclick="showPage('home')">Home</span><span class="sep">/</span><span>Usher</span></div>
+      <div class="dept-chip" style="background:var(--usher)">Usher Team</div>
+      <h1>Welcome<br>Ministry</h1>
+      <p>Serving as the first face of Oasis — creating warm, welcoming experiences for every person who walks through our doors.</p>
+    </div>
+  </div>
+  <div class="stats-strip">
+    <div class="stat"><div class="s-label">Team Size</div><div class="s-value">18 Active</div><div class="s-sub">Ushers & Greeters</div></div>
+    <div class="stat"><div class="s-label">Services</div><div class="s-value">All 3</div><div class="s-sub">Sun 9, 11 AM + Wed 7 PM</div></div>
+    <div class="stat"><div class="s-label">Arrival Time</div><div class="s-value">45 Min</div><div class="s-sub">Before service start</div></div>
+    <div class="stat"><div class="s-label">Rotation</div><div class="s-value">2-Week</div><div class="s-sub">Offering schedule</div></div>
+  </div>
+  <div class="sub-body">
+    <div>
+      <div class="block">
+        <div class="block-title">Post Assignments</div>
+        <div class="row-item"><div class="dot"></div>Main Entrance Greeters — 2 people per door (4 total)</div>
+        <div class="row-item"><div class="dot"></div>Sanctuary Floor Ushers — 4 positions across seating sections</div>
+        <div class="row-item"><div class="dot"></div>Overflow Room Coordinator — 1 designated person</div>
+        <div class="row-item"><div class="dot"></div>Offering Team — 2 people per side aisle (4 total)</div>
+        <div class="row-item"><div class="dot"></div>Exit Doors — 2 people for post-service goodbye</div>
+        <div class="row-item"><div class="dot"></div>Info Table — 1–2 people for guest follow-up</div>
+      </div>
+      <div class="block">
+        <div class="block-title">Offering Procedures</div>
+        <div class="row-item"><div class="dot"></div>Collect baskets from offering room before service</div>
+        <div class="row-item"><div class="dot"></div>Two ushers per aisle — move in sync from front to back</div>
+        <div class="row-item"><div class="dot"></div>Return baskets to counting team in finance room immediately</div>
+        <div class="row-item"><div class="dot"></div>Do not open or handle any offering envelopes</div>
+        <div class="row-item"><div class="dot"></div>Counting team (3 people min) must be present for handoff</div>
+      </div>
+      <div class="block">
+        <div class="block-title">Documents</div>
+        <div class="doc-row"><div class="doc-icon"><svg viewBox="0 0 14 14"><rect x="2" y="1" width="10" height="12" rx="1.5"/><line x1="4.5" y1="5" x2="9.5" y2="5"/><line x1="4.5" y1="7.5" x2="9.5" y2="7.5"/><line x1="4.5" y1="10" x2="7" y2="10"/></svg></div><div><div class="doc-name">March 2026 Usher Schedule</div><div class="doc-meta">Updated Feb 24</div></div></div>
+        <div class="doc-row"><div class="doc-icon"><svg viewBox="0 0 14 14"><rect x="2" y="1" width="10" height="12" rx="1.5"/><line x1="4.5" y1="5" x2="9.5" y2="5"/><line x1="4.5" y1="7.5" x2="9.5" y2="7.5"/><line x1="4.5" y1="10" x2="7" y2="10"/></svg></div><div><div class="doc-name">Usher Training Manual</div><div class="doc-meta">Required for all new volunteers</div></div></div>
+        <div class="doc-row"><div class="doc-icon"><svg viewBox="0 0 14 14"><rect x="2" y="1" width="10" height="12" rx="1.5"/><line x1="4.5" y1="5" x2="9.5" y2="5"/><line x1="4.5" y1="7.5" x2="9.5" y2="7.5"/><line x1="4.5" y1="10" x2="7" y2="10"/></svg></div><div><div class="doc-name">Guest Connection Card Log</div><div class="doc-meta">Submit weekly to Connections team</div></div></div>
+      </div>
+    </div>
+    <div>
+      <div class="block">
+        <div class="block-title">Team Leads</div>
+        <div class="person"><div class="avatar" style="background:var(--usher)">HU</div><div><div class="p-name">Head Usher</div><div class="p-role">Add Name Here</div></div></div>
+        <div class="person"><div class="avatar" style="background:#60a5fa">GL</div><div><div class="p-name">Greeter Lead</div><div class="p-role">Add Name Here</div></div></div>
+        <div class="person"><div class="avatar" style="background:#93c5fd">OC</div><div><div class="p-name">Offering Coordinator</div><div class="p-role">Add Name Here</div></div></div>
+      </div>
+      <div class="block">
+        <div class="block-title">Dress Code</div>
+        <div class="row-item"><div class="dot"></div>Business casual or above for all services</div>
+        <div class="row-item"><div class="dot"></div>Wear your usher lanyard and badge at all times</div>
+        <div class="row-item"><div class="dot"></div>No jeans, sneakers, or casual wear while on duty</div>
+      </div>
+      <div class="block">
+        <div class="block-title">Upcoming</div>
+        <div class="row-item"><div class="dot"></div>Good Friday Service — Apr 3 (All hands)</div>
+        <div class="row-item"><div class="dot"></div>Easter Sunday — Apr 20 (Extended team)</div>
+        <div class="row-item"><div class="dot"></div>Monthly Meeting — Mar 2</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- SECURITY -->
+<div id="security" class="page">
+  <div class="sub-hero">
+    <div class="sub-hero-inner">
+      <div class="breadcrumb"><span class="crumb" onclick="showPage('home')">Home</span><span class="sep">/</span><span>Security</span></div>
+      <div class="dept-chip" style="background:var(--security)">Security Team</div>
+      <h1>Safety<br>Ministry</h1>
+      <p>Protecting our congregation with prayer, preparedness, and professionalism so every person can worship in peace.</p>
+    </div>
+  </div>
+  <div class="stats-strip">
+    <div class="stat"><div class="s-label">Team Size</div><div class="s-value">12 Members</div><div class="s-sub">Trained & Active</div></div>
+    <div class="stat"><div class="s-label">Coverage</div><div class="s-value">All Services</div><div class="s-sub">+ Special Events</div></div>
+    <div class="stat"><div class="s-label">Arrival Time</div><div class="s-value">60 Min</div><div class="s-sub">Before service start</div></div>
+    <div class="stat"><div class="s-label">Radio</div><div class="s-value">Ch. 3</div><div class="s-sub">Primary · Ch. 4 Backup</div></div>
+  </div>
+  <div class="sub-body">
+    <div>
+      <div class="block">
+        <div class="block-title">Post Assignments</div>
+        <div class="row-item"><div class="dot"></div>Main Entrance — 2 officers (perimeter and entrance screening)</div>
+        <div class="row-item"><div class="dot"></div>Sanctuary Interior — 2 officers (positioned at rear corners)</div>
+        <div class="row-item"><div class="dot"></div>Parking Lot — 1–2 officers (traffic and perimeter patrol)</div>
+        <div class="row-item"><div class="dot"></div>Children's Wing — 1 officer near O'Kids classrooms</div>
+        <div class="row-item"><div class="dot"></div>Roving Officer — covers hallways and restrooms</div>
+        <div class="row-item"><div class="dot"></div>Command Post — Team Lead monitors cameras and radio</div>
+      </div>
+      <div class="block">
+        <div class="block-title">Emergency Protocols</div>
+        <div class="row-item"><div class="dot"></div><strong>Code Red</strong> — Active threat: lockdown immediately, call 911, notify team lead</div>
+        <div class="row-item"><div class="dot"></div><strong>Code Blue</strong> — Medical emergency: call 911, retrieve AED, clear the area</div>
+        <div class="row-item"><div class="dot"></div><strong>Code Yellow</strong> — Suspicious person: observe, report, do not confront alone</div>
+        <div class="row-item"><div class="dot"></div><strong>Evacuation</strong> — Use designated routes, direct congregation to parking lot</div>
+        <div class="row-item"><div class="dot"></div>All incidents must be logged via the Incident Report Form within 24 hours</div>
+      </div>
+      <div class="block">
+        <div class="block-title">Documents</div>
+        <div class="doc-row"><div class="doc-icon"><svg viewBox="0 0 14 14"><rect x="2" y="1" width="10" height="12" rx="1.5"/><line x1="4.5" y1="5" x2="9.5" y2="5"/><line x1="4.5" y1="7.5" x2="9.5" y2="7.5"/><line x1="4.5" y1="10" x2="7" y2="10"/></svg></div><div><div class="doc-name">Facility Floor Plan & Post Map</div><div class="doc-meta">Current building layout</div></div></div>
+        <div class="doc-row"><div class="doc-icon"><svg viewBox="0 0 14 14"><rect x="2" y="1" width="10" height="12" rx="1.5"/><line x1="4.5" y1="5" x2="9.5" y2="5"/><line x1="4.5" y1="7.5" x2="9.5" y2="7.5"/><line x1="4.5" y1="10" x2="7" y2="10"/></svg></div><div><div class="doc-name">Emergency Response Plan</div><div class="doc-meta">Reviewed January 2026</div></div></div>
+        <div class="doc-row"><div class="doc-icon"><svg viewBox="0 0 14 14"><rect x="2" y="1" width="10" height="12" rx="1.5"/><line x1="4.5" y1="5" x2="9.5" y2="5"/><line x1="4.5" y1="7.5" x2="9.5" y2="7.5"/><line x1="4.5" y1="10" x2="7" y2="10"/></svg></div><div><div class="doc-name">Incident Report Form</div><div class="doc-meta">Submit within 24 hrs of any incident</div></div></div>
+      </div>
+    </div>
+    <div>
+      <div class="block">
+        <div class="block-title">Team Leads</div>
+        <div class="person"><div class="avatar" style="background:var(--security)">SD</div><div><div class="p-name">Security Director</div><div class="p-role">Add Name Here</div></div></div>
+        <div class="person"><div class="avatar" style="background:#6b7280">AL</div><div><div class="p-name">Assistant Lead</div><div class="p-role">Add Name Here</div></div></div>
+      </div>
+      <div class="block">
+        <div class="block-title">Equipment</div>
+        <div class="row-item"><div class="dot"></div>Radios — pick up from AV booth 45 min before service</div>
+        <div class="row-item"><div class="dot"></div>AED — main lobby near info desk</div>
+        <div class="row-item"><div class="dot"></div>First Aid kits — security office and children's wing</div>
+        <div class="row-item"><div class="dot"></div>Camera access — command post tablet (ask team lead)</div>
+      </div>
+      <div class="block">
+        <div class="block-title">Training</div>
+        <div class="row-item"><div class="dot"></div>Active Threat Training — Mar 22</div>
+        <div class="row-item"><div class="dot"></div>CPR / First Aid Recertification — Apr 5</div>
+        <div class="row-item"><div class="dot"></div>New Member Orientation — Monthly</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- DISCIPLESHIP -->
+<div id="discipleship" class="page">
+  <div class="sub-hero">
+    <div class="sub-hero-inner">
+      <div class="breadcrumb"><span class="crumb" onclick="showPage('home')">Home</span><span class="sep">/</span><span>Discipleship</span></div>
+      <div class="dept-chip" style="background:var(--disc)">Discipleship</div>
+      <h1>Growth &<br>Community</h1>
+      <p>Equipping every believer to grow deeper in faith, connect in community, and multiply as disciples of Jesus.</p>
+    </div>
+  </div>
+  <div class="stats-strip">
+    <div class="stat"><div class="s-label">Life Groups</div><div class="s-value">14 Active</div><div class="s-sub">Throughout the week</div></div>
+    <div class="stat"><div class="s-label">Growth Track</div><div class="s-value">4 Steps</div><div class="s-sub">1st Sunday / month</div></div>
+    <div class="stat"><div class="s-label">Mentors</div><div class="s-value">8 Active</div><div class="s-sub">1:1 Discipleship Pairs</div></div>
+    <div class="stat"><div class="s-label">Series</div><div class="s-value">Rooted</div><div class="s-sub">John 15 · Starts Mar 1</div></div>
+  </div>
+  <div class="sub-body">
+    <div>
+      <div class="block">
+        <div class="block-title">Growth Track Overview</div>
+        <div class="row-item"><div class="dot"></div><strong>Step 1 — Know God:</strong> Salvation, water baptism, and faith basics</div>
+        <div class="row-item"><div class="dot"></div><strong>Step 2 — Find Freedom:</strong> Healing, identity, and breaking strongholds</div>
+        <div class="row-item"><div class="dot"></div><strong>Step 3 — Discover Purpose:</strong> Spiritual gifts assessment and calling</div>
+        <div class="row-item"><div class="dot"></div><strong>Step 4 — Make a Difference:</strong> Connect to a ministry team and life group</div>
+        <div class="row-item"><div class="dot"></div>All steps run on the 1st Sunday each month — 12:30 PM, Room 201</div>
+      </div>
+      <div class="block">
+        <div class="block-title">Life Group Directory</div>
+        <div class="row-item"><div class="dot"></div>Men's Group — Tuesdays 7 PM · Room 110</div>
+        <div class="row-item"><div class="dot"></div>Women's Group — Thursdays 7 PM · Rotating homes</div>
+        <div class="row-item"><div class="dot"></div>Young Adults — Fridays 7:30 PM · Community Room</div>
+        <div class="row-item"><div class="dot"></div>Couples Group — Biweekly Saturdays 6:30 PM</div>
+        <div class="row-item"><div class="dot"></div>Senior Saints — Wednesdays 10 AM · Room 201</div>
+        <div class="row-item"><div class="dot"></div>Spanish Life Group — Sundays 1 PM · Room 104</div>
+      </div>
+      <div class="block">
+        <div class="block-title">Resources</div>
+        <div class="doc-row"><div class="doc-icon"><svg viewBox="0 0 14 14"><rect x="2" y="1" width="10" height="12" rx="1.5"/><line x1="4.5" y1="5" x2="9.5" y2="5"/><line x1="4.5" y1="7.5" x2="9.5" y2="7.5"/><line x1="4.5" y1="10" x2="7" y2="10"/></svg></div><div><div class="doc-name">"Rooted" Study Guide — Q1 2026</div><div class="doc-meta">John 15 Series · 8 Sessions</div></div></div>
+        <div class="doc-row"><div class="doc-icon"><svg viewBox="0 0 14 14"><rect x="2" y="1" width="10" height="12" rx="1.5"/><line x1="4.5" y1="5" x2="9.5" y2="5"/><line x1="4.5" y1="7.5" x2="9.5" y2="7.5"/><line x1="4.5" y1="10" x2="7" y2="10"/></svg></div><div><div class="doc-name">Spiritual Gifts Assessment</div><div class="doc-meta">Used in Growth Track Step 3</div></div></div>
+        <div class="doc-row"><div class="doc-icon"><svg viewBox="0 0 14 14"><rect x="2" y="1" width="10" height="12" rx="1.5"/><line x1="4.5" y1="5" x2="9.5" y2="5"/><line x1="4.5" y1="7.5" x2="9.5" y2="7.5"/><line x1="4.5" y1="10" x2="7" y2="10"/></svg></div><div><div class="doc-name">Life Group Leader Handbook</div><div class="doc-meta">Required for all group leaders</div></div></div>
+      </div>
+    </div>
+    <div>
+      <div class="block">
+        <div class="block-title">Leadership Team</div>
+        <div class="person"><div class="avatar" style="background:var(--disc)">DP</div><div><div class="p-name">Discipleship Pastor</div><div class="p-role">Add Name Here</div></div></div>
+        <div class="person"><div class="avatar" style="background:#8b5cf6">LC</div><div><div class="p-name">Life Group Coordinator</div><div class="p-role">Add Name Here</div></div></div>
+        <div class="person"><div class="avatar" style="background:#a78bfa">MC</div><div><div class="p-name">Mentorship Coordinator</div><div class="p-role">Add Name Here</div></div></div>
+      </div>
+      <div class="block">
+        <div class="block-title">Upcoming</div>
+        <div class="row-item"><div class="dot"></div>"Rooted" Series Launch — Mar 1</div>
+        <div class="row-item"><div class="dot"></div>Life Group Leader Summit — Mar 8</div>
+        <div class="row-item"><div class="dot"></div>New Group Interest Meeting — Mar 15</div>
+        <div class="row-item"><div class="dot"></div>Baptism Service — Apr 6</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- MEDIA -->
+<div id="media" class="page">
+  <div class="sub-hero">
+    <div class="sub-hero-inner">
+      <div class="breadcrumb"><span class="crumb" onclick="showPage('home')">Home</span><span class="sep">/</span><span>Media</span></div>
+      <div class="dept-chip" style="background:var(--media)">Media Team</div>
+      <h1>Audio, Visual<br>& Digital</h1>
+      <p>Amplifying the message of Oasis through excellence in sound, visuals, livestream, and digital media production.</p>
+    </div>
+  </div>
+  <div class="stats-strip">
+    <div class="stat"><div class="s-label">Team Size</div><div class="s-value">16 Active</div><div class="s-sub">AV, Design & Social</div></div>
+    <div class="stat"><div class="s-label">Livestream</div><div class="s-value">YouTube + FB</div><div class="s-sub">All Sunday Services</div></div>
+    <div class="stat"><div class="s-label">Arrival Time</div><div class="s-value">75 Min</div><div class="s-sub">Before service start</div></div>
+    <div class="stat"><div class="s-label">Platforms</div><div class="s-value">4 Active</div><div class="s-sub">IG · FB · YouTube · TikTok</div></div>
+  </div>
+  <div class="sub-body">
+    <div>
+      <div class="block">
+        <div class="block-title">AV Positions</div>
+        <div class="row-item"><div class="dot"></div>Front of House (FOH) Sound — controls main mix</div>
+        <div class="row-item"><div class="dot"></div>Livestream Producer — manages OBS and camera switching</div>
+        <div class="row-item"><div class="dot"></div>Worship Monitors Engineer — in-ear mix for worship team</div>
+        <div class="row-item"><div class="dot"></div>ProPresenter Operator — slides, lyrics, lower-thirds</div>
+        <div class="row-item"><div class="dot"></div>Camera Operators — 2 people (center aisle and balcony)</div>
+        <div class="row-item"><div class="dot"></div>Lighting Operator — main booth (doubles with ProPresenter)</div>
+      </div>
+      <div class="block">
+        <div class="block-title">Social Media Calendar</div>
+        <div class="row-item"><div class="dot"></div><strong>Monday</strong> — Sermon recap graphic and sermon clip (Reels/Shorts)</div>
+        <div class="row-item"><div class="dot"></div><strong>Tuesday</strong> — Quote card from Sunday message</div>
+        <div class="row-item"><div class="dot"></div><strong>Wednesday</strong> — Mid-week devotional or announcement</div>
+        <div class="row-item"><div class="dot"></div><strong>Friday</strong> — Weekend reminder and service preview</div>
+        <div class="row-item"><div class="dot"></div><strong>Sunday</strong> — Live stories and worship photo gallery</div>
+        <div class="row-item"><div class="dot"></div>All content must be approved by Creative Lead before posting</div>
+      </div>
+      <div class="block">
+        <div class="block-title">Files & Resources</div>
+        <div class="doc-row"><div class="doc-icon"><svg viewBox="0 0 14 14"><rect x="2" y="1" width="10" height="12" rx="1.5"/><line x1="4.5" y1="5" x2="9.5" y2="5"/><line x1="4.5" y1="7.5" x2="9.5" y2="7.5"/><line x1="4.5" y1="10" x2="7" y2="10"/></svg></div><div><div class="doc-name">Brand Kit & Style Guide</div><div class="doc-meta">Fonts, colors, logo files</div></div></div>
+        <div class="doc-row"><div class="doc-icon"><svg viewBox="0 0 14 14"><rect x="2" y="1" width="10" height="12" rx="1.5"/><line x1="4.5" y1="5" x2="9.5" y2="5"/><line x1="4.5" y1="7.5" x2="9.5" y2="7.5"/><line x1="4.5" y1="10" x2="7" y2="10"/></svg></div><div><div class="doc-name">Livestream Runsheet Template</div><div class="doc-meta">Update each week before Sunday</div></div></div>
+        <div class="doc-row"><div class="doc-icon"><svg viewBox="0 0 14 14"><rect x="2" y="1" width="10" height="12" rx="1.5"/><line x1="4.5" y1="5" x2="9.5" y2="5"/><line x1="4.5" y1="7.5" x2="9.5" y2="7.5"/><line x1="4.5" y1="10" x2="7" y2="10"/></svg></div><div><div class="doc-name">CCLI License Info & Reporting</div><div class="doc-meta">Required for all song reporting</div></div></div>
+        <div class="doc-row"><div class="doc-icon"><svg viewBox="0 0 14 14"><rect x="2" y="1" width="10" height="12" rx="1.5"/><line x1="4.5" y1="5" x2="9.5" y2="5"/><line x1="4.5" y1="7.5" x2="9.5" y2="7.5"/><line x1="4.5" y1="10" x2="7" y2="10"/></svg></div><div><div class="doc-name">Q1 Content Calendar</div><div class="doc-meta">Social media plan Jan–Mar 2026</div></div></div>
+      </div>
+    </div>
+    <div>
+      <div class="block">
+        <div class="block-title">Team Leads</div>
+        <div class="person"><div class="avatar" style="background:var(--media)">MD</div><div><div class="p-name">Media Director</div><div class="p-role">Add Name Here</div></div></div>
+        <div class="person"><div class="avatar" style="background:#10b981">SL</div><div><div class="p-name">Sound Lead</div><div class="p-role">Add Name Here</div></div></div>
+        <div class="person"><div class="avatar" style="background:#6ee7b7">CL</div><div><div class="p-name">Creative Lead</div><div class="p-role">Add Name Here</div></div></div>
+      </div>
+      <div class="block">
+        <div class="block-title">Equipment Notes</div>
+        <div class="row-item"><div class="dot"></div>Power down all equipment after every service</div>
+        <div class="row-item"><div class="dot"></div>Log any equipment issues in the tech log immediately</div>
+        <div class="row-item"><div class="dot"></div>Camera batteries charge overnight in AV booth cabinet</div>
+        <div class="row-item"><div class="dot"></div>Do not alter console scene settings without lead approval</div>
+      </div>
+      <div class="block">
+        <div class="block-title">Upcoming</div>
+        <div class="row-item"><div class="dot"></div>Media Team Training — Mar 8, 10 AM</div>
+        <div class="row-item"><div class="dot"></div>Easter Production Planning — Mar 22</div>
+        <div class="row-item"><div class="dot"></div>New Camera System Rollout — Apr 1</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<footer>Oasis Windermere Ministry Hub &nbsp;·&nbsp; Internal Use Only &nbsp;·&nbsp; 2026</footer>
+
+<div class="mob-nav">
+  <button class="active" onclick="showPage('home')"><div class="mbdot"></div>Home</button>
+  <button onclick="showPage('okids')"><div class="mbdot"></div>O'Kids</button>
+  <button onclick="showPage('usher')"><div class="mbdot"></div>Usher</button>
+  <button onclick="showPage('security')"><div class="mbdot"></div>Security</button>
+  <button onclick="showPage('discipleship')"><div class="mbdot"></div>Discipleship</button>
+  <button onclick="showPage('media')"><div class="mbdot"></div>Media</button>
+</div>
+
+<script>
+  function showPage(id) {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.topnav button, .mob-nav button').forEach(b => b.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    const map = { home:0, okids:1, usher:2, security:3, discipleship:4, media:5 };
+    const i = map[id];
+    if (i !== undefined) {
+      document.querySelectorAll('.topnav button')[i]?.classList.add('active');
+      document.querySelectorAll('.mob-nav button')[i]?.classList.add('active');
+    }
+  }
+</script>
+</body>
+</html>
